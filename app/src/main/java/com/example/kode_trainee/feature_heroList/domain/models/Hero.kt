@@ -1,20 +1,60 @@
 package com.example.kode_trainee.feature_heroList.domain.models
 
-import com.example.kode_trainee.feature_heroList.data.dto.heroDto.Appearance
-import com.example.kode_trainee.feature_heroList.data.dto.heroDto.Biography
-import com.example.kode_trainee.feature_heroList.data.dto.heroDto.Connections
-import com.example.kode_trainee.feature_heroList.data.dto.heroDto.Image
-import com.example.kode_trainee.feature_heroList.data.dto.heroDto.Powerstats
-import com.example.kode_trainee.feature_heroList.data.dto.heroDto.Work
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class Hero(
-    val appearance: Appearance,
-    val biography: Biography,
-    val connections: Connections,
     val id: String,
-    val image: Image,
     val name: String,
-    val powerstats: Powerstats,
-    val response: String,
-    val work: Work
-)
+    val biography: Biography,
+    val powerstats: PowerStats,
+    val images: String,
+    val appearance: Appearance? = null,
+    val connections: Connections? = null,
+    val work: Work? = null
+) : Parcelable {
+
+    @Parcelize
+    data class Biography(
+        val publisher: String,
+        val alignment: String,
+        val fullName: String,
+        val alterEgos: String? = null,
+        val aliases: List<String>? = null,
+        val placeOfBirth: String? = null,
+        val firstAppearance: String? = null
+    ) : Parcelable
+
+    @Parcelize
+    data class PowerStats(
+        val intelligence: String,
+        val strength: String,
+        val speed: String,
+        val durability: String,
+        val power: String,
+        val combat: String
+    ) : Parcelable
+
+    @Parcelize
+    data class Appearance(
+        val gender: String,
+        val race: String,
+        val height: List<String>,
+        val weight: List<String>,
+        val eyeColor: String,
+        val hairColor: String
+    ) : Parcelable
+
+    @Parcelize
+    data class Connections(
+        val groupAffiliation: String,
+        val relatives: String
+    ) : Parcelable
+
+    @Parcelize
+    data class Work(
+        val occupation: String,
+        val base: String
+    ) : Parcelable
+}

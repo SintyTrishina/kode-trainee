@@ -1,18 +1,12 @@
 package com.example.kode_trainee.feature_heroList.presentation.ui
 
-import android.content.Context
-import android.content.Intent
+import android.R
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.Adapter
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.kode_trainee.R
 import com.example.kode_trainee.databinding.ActivityHeroListBinding
 import com.example.kode_trainee.feature_heroList.domain.models.Hero
 import com.example.kode_trainee.feature_heroList.presentation.viewmodel.HeroListViewModel
@@ -21,23 +15,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HeroListActivity : AppCompatActivity() {
 
-    companion object {
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
-    }
-
     private val viewModel by viewModel<HeroListViewModel>()
-
-
     private lateinit var binding: ActivityHeroListBinding
-
-    private val adapter = Adapter {
-        if (clickDebounce()) {
-            viewModel.onTrackClicked(it)
-        }
-    }
-
-    private val handler = Handler(Looper.getMainLooper())
-    private var isClickAllowed = true
+    private lateinit var adapter: Adapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,74 +25,69 @@ class HeroListActivity : AppCompatActivity() {
         binding = ActivityHeroListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupAdapter()
+        setupSpinner()
+        setupObservers()
+    }
+
+    private fun setupAdapter() {
+        adapter = Adapter { hero ->
+            viewModel.onHeroClicked(hero)
+        }
         binding.heroesRecyclerView.adapter = adapter
+    }
 
-
-        viewModel.searchState.observe(this) {
-            render(it)
-        }
-
-        viewModel.toastState.observe(this) {
-            it?.let { showToast(it) }
-        }
-        viewModel.navigateToHero.observe(this) {
-            val intent = Intent(this, HeroDetailsActivity::class.java).apply {
-//                putExtra("APPEARANCE", it.appearance)
-                putExtra("NAME", it.name)
-                putExtra("ID", it.id)
-//                putExtra("BIOGRAPHY", it.biography)
-//                putExtra("CONNECTIONS", it.connections)
-//                putExtra("IMAGE", it.image)
-                putExtra("RESPONSE", it.response)
-//                putExtra("WORK", it.work)
+    private fun setupSpinner() {
+        viewModel.publishers.observe(this) { publishers ->
+            val adapter = ArrayAdapter(
+                this,
+                R.layout.simple_spinner_item,
+                publishers
+            ).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
-            startActivity(intent)
+
+            binding.publisherSpinner.adapter = adapter
+
+            binding.publisherSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val selectedPublisher = parent?.getItemAtPosition(position).toString()
+                    if (selectedPublisher.isNotEmpty()) {
+                        viewModel.searchByPublisher(selectedPublisher)
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         }
     }
 
-
-
-    private fun clickDebounce(): Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+    private fun setupObservers() {
+        viewModel.searchState.observe(this) { state ->
+            when (state) {
+                is State.Loading -> showLoading()
+                is State.Content -> showContent(state.heroes)
+                is State.Error -> showError(state.errorMessage)
+                is State.Empty -> showEmpty(state.message)
+                else -> {}
+            }
         }
-        return current
-    }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
+        viewModel.toastState.observe(this) { message ->
+            message?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
+        }
 
-    private fun render(state: State) {
-        when (state) {
-            is State.Loading -> showLoading()
-            is State.Content -> showContent(state.heroes)
-            is State.Error -> showError(state.errorMessage)
-            is State.Empty -> showEmpty(state.message)
+        viewModel.navigateToHero.observe(this) { hero ->
+            startActivity(
+                HeroDetailsActivity.newIntent(this, hero)
+            )
         }
     }
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun showError(errorMessage: String) {
-        binding.progressBar.visibility = View.GONE
-        binding.placeholderImage.setImageResource(R.drawable.errorconnection)
-        binding.placeholderImage.visibility = View.VISIBLE
-        binding.placeholderMessage.visibility = View.VISIBLE
-        binding.placeholderMessage.text = errorMessage
-
-    }
-
-    private fun showEmpty(emptyMessage: String) {
-        binding.progressBar.visibility = View.GONE
-        binding.placeholderImage.setImageResource(R.drawable.error)
-        binding.placeholderImage.visibility = View.VISIBLE
-        binding.placeholderMessage.visibility = View.VISIBLE
-        binding.placeholderMessage.text = emptyMessage
+        binding.placeholderImage.visibility = View.GONE
+        binding.placeholderMessage.visibility = View.GONE
     }
 
     private fun showContent(heroes: List<Hero>) {
@@ -122,6 +97,27 @@ class HeroListActivity : AppCompatActivity() {
         adapter.heroes.clear()
         adapter.heroes.addAll(heroes)
         adapter.notifyDataSetChanged()
+    }
 
+    private fun showError(errorMessage: String) {
+        binding.progressBar.visibility = View.GONE
+        binding.placeholderImage.setImageResource(R.drawable.checkbox_on_background)
+        binding.placeholderImage.visibility = View.VISIBLE
+        binding.placeholderMessage.visibility = View.VISIBLE
+        binding.placeholderMessage.text = errorMessage
+        adapter.heroes.clear()
+        adapter.heroes.addAll(emptyList())
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun showEmpty(emptyMessage: String) {
+        binding.progressBar.visibility = View.GONE
+        binding.placeholderImage.setImageResource(R.drawable.stat_notify_error)
+        binding.placeholderImage.visibility = View.VISIBLE
+        binding.placeholderMessage.visibility = View.VISIBLE
+        binding.placeholderMessage.text = emptyMessage
+        adapter.heroes.clear()
+        adapter.heroes.addAll(emptyList())
+        adapter.notifyDataSetChanged()
     }
 }

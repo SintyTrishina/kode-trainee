@@ -5,6 +5,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -16,6 +17,9 @@ class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val imageView: ImageView = itemView.findViewById(R.id.image)
     private val aliasView: TextView = itemView.findViewById(R.id.alias)
     private val realNameView: TextView = itemView.findViewById(R.id.realName)
+    private val publisher: TextView = itemView.findViewById(R.id.publisher)
+
+
 
 
     private fun dpToPx(dp: Float, context: Context): Int {
@@ -27,17 +31,23 @@ class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     fun bind(item: Hero) {
-        aliasView.text = item.biography.aliases[1]
+        aliasView.text = item.biography.aliases?.joinToString(",")
         realNameView.text = item.biography.fullName
+        publisher.text = item.biography.publisher
 
-        val cornerRadius = dpToPx(2f, itemView.context)
+
+
+
+        val cornerRadius = dpToPx(16f, itemView.context)
 
         Glide.with(itemView)
-            .load(item.image.url)
+            .load(item.images)
             .placeholder(R.drawable.placeholder)
             .centerCrop()
             .transform(RoundedCorners(cornerRadius))
             .into(imageView)
+
+
 
     }
 }

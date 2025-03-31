@@ -18,87 +18,57 @@ class HeroListViewModel(
     private val _searchState = MutableLiveData<State>()
     val searchState: LiveData<State> get() = _searchState
 
+    private val _publishers = MutableLiveData<List<String>>()
+    val publishers: LiveData<List<String>> get() = _publishers
+
     private val _toastState = SingleLiveEvent<String?>()
     val toastState: LiveData<String?> get() = _toastState
-
 
     private val _navigateToHero = SingleLiveEvent<Hero>()
     val navigateToHero: LiveData<Hero> get() = _navigateToHero
 
-    private var userChoice = ""
-
-    companion object {
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+    init {
+        loadPublishers()
     }
 
-    private val handler = Handler(Looper.getMainLooper())
-
-
-    private val searchRunnable = Runnable {
-        search(publisher = userChoice)
-    }
-
-    override fun onCleared() {
-        handler.removeCallbacks(searchRunnable)
-    }
-
-    // Обработка нажатия
-    fun onTrackClicked(hero: Hero) {
+    fun onHeroClicked(hero: Hero) {
         _navigateToHero.postValue(hero)
     }
 
-    fun searchDebounce() {
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
-    }
+    fun searchByPublisher(publisher: String) {
+        _searchState.postValue(State.Loading)
 
-
-    fun search(publisher: String) {
-        if (publisher.isNotEmpty()) {
-            userChoice = publisher
-            renderState(State.Loading)
-
-            interactor.getHeroesByPublisher(
-                publisher,
-                object : HeroListInteractor.TrackConsumer {
-                    override fun consume(data: List<Hero>?, errorMessage: String?) {
-
-                        renderState(State.Content(emptyList()))
-
-                        if (!data.isNullOrEmpty()) {
-                            renderState(State.Content(data))
-                        } else {
-                            renderState(State.Empty(resourcesProvider.getNothingFoundText()))
-                        }
-                        if (errorMessage != null) {
-                            renderState(State.Error(resourcesProvider.getSomethingWentWrongText()))
+        interactor.getHeroesByPublisher(
+            publisher,
+            object : HeroListInteractor.TrackConsumer {
+                override fun consume(data: List<Hero>?, errorMessage: String?) {
+                    when {
+                        errorMessage != null -> {
+                            _searchState.postValue(State.Error(resourcesProvider.getSomethingWentWrongText()))
                             _toastState.postValue(errorMessage)
-
+                        }
+                        data.isNullOrEmpty() -> {
+                            _searchState.postValue(State.Empty(resourcesProvider.getNothingFoundText()))
+                        }
+                        else -> {
+                            _searchState.postValue(State.Content(data.filterNotNull())) // Фильтруем null
                         }
                     }
-                })
-        }
+                }
+            }
+        )
     }
 
-    private fun renderState(state: State) {
-        _searchState.postValue(state)
+    private fun loadPublishers() {
+            // Здесь можно загрузить список publishers из API или из ресурсов
+            val publishersList = listOf(
+                "Marvel Comics",
+                "DC Comics",
+                "Dark Horse Comics",
+                "George Lucas",
+                "NBC - Heroes"
+            )
+            _publishers.postValue(publishersList)
+
     }
-
-
-//    fun showSearchHistory() {
-//        handler.post {
-//            val history = searchHistoryInteractor.getHistory()
-//            if (history.isNotEmpty()) {
-//                renderState(SearchState.History(history))
-//            } else {
-//                hideSearchHistory()
-//            }
-//        }
-//    }
-//
-//    fun hideSearchHistory() {
-//        handler.post {
-//            renderState(SearchState.Content(ArrayList()))
-//        }
-//    }
 }

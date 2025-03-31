@@ -1,8 +1,8 @@
 package com.example.kode_trainee.feature_heroList.data.dto
 
 import com.example.kode_trainee.feature_heroList.data.NetworkClient
+import com.example.kode_trainee.feature_heroList.data.dto.retrofit.Response
 import com.example.kode_trainee.feature_heroList.data.dto.retrofit.SearchRequest
-import com.example.kode_trainee.feature_heroList.data.dto.retrofit.SearchResponse
 import com.example.kode_trainee.feature_heroList.domain.api.HeroRepository
 import com.example.kode_trainee.feature_heroList.domain.models.Hero
 import com.example.kode_trainee.utils.Resource
@@ -10,33 +10,43 @@ import com.example.kode_trainee.utils.Resource
 class HeroRepositoryImpl(
     private val networkClient: NetworkClient
 ) : HeroRepository {
+    private var allHeroesCache: List<Hero> = emptyList()
+
     override fun getHeroesByPublisher(term: String): Resource<List<Hero>> {
-        val response = networkClient.doRequest(SearchRequest(term))
+        return try {
+            val response = networkClient.doRequest(SearchRequest(term))
 
-        return when (response.resultCode) {
-            -1 -> {
-                Resource.Error("Проверьте подключение к интернету", emptyList())
-            }
+            when (response.resultCode) {
+                -1 -> Resource.Error("No internet", emptyList())
+                200 -> {
+                    val heroes = (response as? Response)?.results
+                        ?.mapNotNull { it.toDomainOrNull() }
+                        ?: emptyList()
 
-            200 -> {
-                Resource.Success((response as SearchResponse).results.map {
-                    Hero(
-                        it.appearance,
-                        it.biography,
-                        it.connections,
-                        it.name,
-                        it.image,
-                        it.id,
-                        it.powerstats,
-                        it.response,
-                        it.work
-                    )
-                })
+                    if (heroes.isEmpty()) {
+                        Resource.Error("Nothing found")
+                    } else {
+                        Resource.Success(heroes)
+                    }
+                }
+                else -> Resource.Error("Server error", emptyList())
             }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Unknown error", emptyList())
+        }
+    }
 
-            else -> {
-                Resource.Error("Ошибка сервера", emptyList())
-            }
+    override fun filterHeroesByPublisher(publisher: String): Resource<List<Hero>> {
+        val filtered = allHeroesCache.filter {
+            it.biography.publisher.contains(publisher, ignoreCase = true)
+        }
+
+        return if (filtered.isEmpty()) {
+            Resource.Error("Ничего не найдено")
+        } else {
+            Resource.Success(filtered)
         }
     }
 }
+
+
