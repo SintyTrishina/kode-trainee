@@ -17,6 +17,9 @@
         android:theme="@style/Theme.Kodetrainee"
         tools:targetApi="31">
         <activity
+            android:name=".feature_heroList.presentation.ui.HeroDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".feature_heroList.presentation.ui.HeroListActivity"
             android:exported="true">
             <intent-filter>
