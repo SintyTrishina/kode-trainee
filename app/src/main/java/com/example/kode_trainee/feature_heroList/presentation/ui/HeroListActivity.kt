@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.kode_trainee.R
@@ -36,7 +37,23 @@ class HeroListActivity : AppCompatActivity() {
             .placeholder(R.drawable.placeholder)
             .centerCrop()
             .into(binding.photoImageView)
-        // Инициализация SharedPreferences и Gson
+
+        binding.menuButton.setOnClickListener {
+           AlertDialog.Builder(this)
+               .setTitle("Эксклюзивное предложение")
+               .setMessage("Нанять лучшего стажера")
+               .setPositiveButton("БЕРУ!!!")
+               {
+                   dialog,_ -> dialog.dismiss()
+               }
+               .setNegativeButton("КОНЕЧНО,ДА!")
+               {
+                   dialog,_ -> dialog.dismiss()
+               }
+               .create()
+               .show()
+        }
+
         sharedPrefs = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
         gson = Gson()
 
@@ -145,7 +162,7 @@ class HeroListActivity : AppCompatActivity() {
 
     private fun showError(errorMessage: String) {
         binding.progressBar.visibility = View.GONE
-        binding.placeholderImage.setImageResource(R.drawable.errorconnection)
+        binding.placeholderImage.setImageResource(R.drawable.vecteezy_no_internet_network_icon_vector_design_15938171)
         binding.placeholderImage.visibility = View.VISIBLE
         binding.placeholderMessage.visibility = View.VISIBLE
         binding.placeholderMessage.text = errorMessage

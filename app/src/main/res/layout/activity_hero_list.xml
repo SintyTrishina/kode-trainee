@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#120A69DB"
     android:orientation="vertical"
     android:paddingTop="@dimen/pad16">
@@ -94,16 +95,19 @@
 
         <ImageView
             android:id="@+id/placeholderImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:src="@drawable/placeholder"/>
 
         <TextView
             android:id="@+id/placeholderMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="40dp"
+            tools:text = "hfjhfhjhjkkhjgrtgrkhjgrkhjgvfhkjghk"
             android:layout_marginTop="@dimen/pad16"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:visibility="gone" />
