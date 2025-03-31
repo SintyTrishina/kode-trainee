@@ -7,7 +7,6 @@ import retrofit2.http.GET
 interface HeroApi {
     @GET("all.json")
     fun getAllHeroes(): Call<List<HeroResponse>>
-
 }
 
 

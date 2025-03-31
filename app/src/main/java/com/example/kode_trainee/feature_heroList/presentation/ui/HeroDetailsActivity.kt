@@ -3,17 +3,17 @@ package com.example.kode_trainee.feature_heroList.presentation.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.kode_trainee.R
+import com.example.kode_trainee.databinding.ActivityHeroDetailsBinding
 import com.example.kode_trainee.feature_heroList.domain.models.Hero
 
 class HeroDetailsActivity : AppCompatActivity() {
-private lateinit var buttonLike: ImageButton
+
+    private lateinit var binding: ActivityHeroDetailsBinding
     private var isFavorite = false
+
     companion object {
         private const val EXTRA_HERO = "extra_hero"
 
@@ -26,9 +26,8 @@ private lateinit var buttonLike: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_hero_details)
-
-        buttonLike = findViewById(R.id.buttonLike)
+        binding = ActivityHeroDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val hero = intent.getParcelableExtra<Hero>(EXTRA_HERO)
         hero?.let {
@@ -37,53 +36,55 @@ private lateinit var buttonLike: ImageButton
             updateFavoriteButton()
         }
 
-        buttonLike.setOnClickListener {
+        binding.buttonLike.setOnClickListener {
             isFavorite = !isFavorite
             updateFavoriteButton()
-
-            // Здесь можно добавить логику сохранения в избранное
             hero?.isFavorite = isFavorite
         }
+
+        binding.back.setOnClickListener { finish() }
     }
 
     private fun bindHeroData(hero: Hero) {
-        // Находим View и заполняем данными
         println("Image URL: ${hero.images}")
-        findViewById<TextView>(R.id.heroName).text = hero.biography.aliases?.joinToString(",")
-        findViewById<TextView>(R.id.realName).text = hero.biography.fullName
-        findViewById<TextView>(R.id.placeOfBirth).text = buildString {
+        binding.heroName.text = hero.biography.aliases?.joinToString(",")
+        binding.realName.text = hero.biography.fullName
+        binding.placeOfBirth.text = buildString {
+            append("Характеристики:\nИнтеллект - ${hero.powerstats.intelligence}\nСила - ${hero.powerstats.power}\nСкорость - ${hero.powerstats.speed}\nВыносливость - ${hero.powerstats.durability}\nБой - ${hero.powerstats.combat}\n")
+            append("Пол - ${hero.appearance?.gender}\nРаса - ${hero.appearance?.race}\nРост - ${(hero.appearance?.height?.get(1) ?: "")}, Вес - ${hero.appearance?.weight?.get(1) ?: ""}\n")
             append("Публикация: ${hero.biography.publisher}\n")
             append("Место рождения: ${hero.biography.placeOfBirth}\n")
             append("Первое появление: ${hero.biography.firstAppearance}\n")
+            append("Стиль героя: ${hero.biography.alignment}")
         }
-        val imageView = findViewById<ImageView>(R.id.heroImage)
+
         Glide.with(this)
             .load(hero.images)
             .placeholder(R.drawable.placeholder)
             .centerCrop()
-            .into(imageView)
+            .into(binding.heroImage)
 
 
+    }
 
-        }
     private fun updateFavoriteButton() {
-        buttonLike.setImageResource(
+        binding.buttonLike.setImageResource(
             if (isFavorite) R.drawable.ic_star_filled
             else R.drawable.ic_star_outline
         )
 
         // Можно добавить анимацию:
-        buttonLike.animate()
+        binding.buttonLike.animate()
             .scaleX(0.8f)
             .scaleY(0.8f)
             .setDuration(100)
             .withEndAction {
-                buttonLike.animate()
+                binding.buttonLike.animate()
                     .scaleX(1.2f)
                     .scaleY(1.2f)
                     .setDuration(100)
                     .withEndAction {
-                        buttonLike.animate()
+                        binding.buttonLike.animate()
                             .scaleX(1f)
                             .scaleY(1f)
                             .setDuration(100)
@@ -94,4 +95,4 @@ private lateinit var buttonLike: ImageButton
             .start()
     }
 
-    }
+}

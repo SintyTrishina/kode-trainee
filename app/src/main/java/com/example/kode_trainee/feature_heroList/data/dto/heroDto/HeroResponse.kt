@@ -9,7 +9,7 @@ data class HeroResponse(
     val name: String,
     val powerstats: PowerStatsResponse,
     val biography: BiographyResponse,
-    val images: ImageResponse?, // Делаем nullable
+    val images: ImageResponse?,
     val appearance: AppearanceResponse? = null,
     val connections: ConnectionsResponse? = null,
     val work: WorkResponse? = null
@@ -71,7 +71,7 @@ data class BiographyResponse(
 
 data class AppearanceResponse(
     val gender: String?,
-    val race: String?, // Делаем nullable
+    val race: String?,
     val height: List<String>?,
     val weight: List<String>?,
     val eyeColor: String?,
@@ -79,7 +79,7 @@ data class AppearanceResponse(
 ) {
     fun toDomain() = Hero.Appearance(
         gender = gender ?: "Unknown",
-        race = race ?: "Unknown", // Дефолтное значение
+        race = race ?: "Unknown",
         height = height ?: emptyList(),
         weight = weight ?: emptyList(),
         eyeColor = eyeColor ?: "Unknown",

@@ -1,7 +1,5 @@
 package com.example.kode_trainee.feature_heroList.presentation.viewmodel
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -41,9 +39,8 @@ class HeroListViewModel(
         _searchState.postValue(State.Loading)
 
         if (publisher == "All") {
-            // Загружаем всех героев
             interactor.getHeroesByPublisher(
-                "", // пустая строка для загрузки всех
+                "",
                 object : HeroListInteractor.TrackConsumer {
                     override fun consume(data: List<Hero>?, errorMessage: String?) {
                         handleHeroResponse(data, errorMessage)
@@ -52,7 +49,6 @@ class HeroListViewModel(
                 }
             )
         } else {
-            // Фильтруем по publisher
             interactor.getHeroesByPublisher(
                 publisher,
                 object : HeroListInteractor.TrackConsumer {
@@ -77,22 +73,21 @@ class HeroListViewModel(
             }
 
             else -> {
-                _searchState.postValue(State.Content(data.filterNotNull()))
+                _searchState.postValue(State.Content(data))
             }
         }
     }
 
     private fun loadPublishers() {
-            // Здесь можно загрузить список publishers из API или из ресурсов
-            val publishersList = listOf(
-                "All",
-                "Marvel Comics",
-                "DC Comics",
-                "Dark Horse Comics",
-                "George Lucas",
-                "NBC - Heroes"
-            )
-            _publishers.postValue(publishersList)
+        val publishersList = listOf(
+            "All",
+            "Marvel Comics",
+            "DC Comics",
+            "Dark Horse Comics",
+            "George Lucas",
+            "NBC - Heroes"
+        )
+        _publishers.postValue(publishersList)
 
     }
 }

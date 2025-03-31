@@ -33,7 +33,8 @@ class RetrofitNetworkClient(
         val connectivityManager = context.getSystemService(
             Context.CONNECTIVITY_SERVICE
         ) as ConnectivityManager
-        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         return capabilities?.let {
             it.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                     it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
