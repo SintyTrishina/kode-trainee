@@ -12,7 +12,8 @@ data class Hero(
     val images: String,
     val appearance: Appearance? = null,
     val connections: Connections? = null,
-    val work: Work? = null
+    val work: Work? = null,
+    var isFavorite: Boolean = false
 ) : Parcelable {
 
     @Parcelize

@@ -26,6 +26,8 @@ class HeroListViewModel(
 
     private val _navigateToHero = SingleLiveEvent<Hero>()
     val navigateToHero: LiveData<Hero> get() = _navigateToHero
+    private var allHeroes: List<Hero> = emptyList()
+
 
     init {
         loadPublishers()
@@ -38,30 +40,52 @@ class HeroListViewModel(
     fun searchByPublisher(publisher: String) {
         _searchState.postValue(State.Loading)
 
-        interactor.getHeroesByPublisher(
-            publisher,
-            object : HeroListInteractor.TrackConsumer {
-                override fun consume(data: List<Hero>?, errorMessage: String?) {
-                    when {
-                        errorMessage != null -> {
-                            _searchState.postValue(State.Error(resourcesProvider.getSomethingWentWrongText()))
-                            _toastState.postValue(errorMessage)
-                        }
-                        data.isNullOrEmpty() -> {
-                            _searchState.postValue(State.Empty(resourcesProvider.getNothingFoundText()))
-                        }
-                        else -> {
-                            _searchState.postValue(State.Content(data.filterNotNull())) // Фильтруем null
-                        }
+        if (publisher == "All") {
+            // Загружаем всех героев
+            interactor.getHeroesByPublisher(
+                "", // пустая строка для загрузки всех
+                object : HeroListInteractor.TrackConsumer {
+                    override fun consume(data: List<Hero>?, errorMessage: String?) {
+                        handleHeroResponse(data, errorMessage)
+                        data?.let { allHeroes = it }
                     }
                 }
+            )
+        } else {
+            // Фильтруем по publisher
+            interactor.getHeroesByPublisher(
+                publisher,
+                object : HeroListInteractor.TrackConsumer {
+                    override fun consume(data: List<Hero>?, errorMessage: String?) {
+                        handleHeroResponse(data, errorMessage)
+                        data?.let { allHeroes = it }
+                    }
+                }
+            )
+        }
+    }
+
+    private fun handleHeroResponse(data: List<Hero>?, errorMessage: String?) {
+        when {
+            errorMessage != null -> {
+                _searchState.postValue(State.Error(resourcesProvider.getSomethingWentWrongText()))
+                _toastState.postValue(errorMessage)
             }
-        )
+
+            data.isNullOrEmpty() -> {
+                _searchState.postValue(State.Empty(resourcesProvider.getNothingFoundText()))
+            }
+
+            else -> {
+                _searchState.postValue(State.Content(data.filterNotNull()))
+            }
+        }
     }
 
     private fun loadPublishers() {
             // Здесь можно загрузить список publishers из API или из ресурсов
             val publishersList = listOf(
+                "All",
                 "Marvel Comics",
                 "DC Comics",
                 "Dark Horse Comics",

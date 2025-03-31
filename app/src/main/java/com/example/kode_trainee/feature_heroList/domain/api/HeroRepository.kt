@@ -5,5 +5,4 @@ import com.example.kode_trainee.utils.Resource
 
 interface HeroRepository {
     fun getHeroesByPublisher(term: String): Resource<List<Hero>>
-    fun filterHeroesByPublisher(term: String): Resource<List<Hero>>
 }

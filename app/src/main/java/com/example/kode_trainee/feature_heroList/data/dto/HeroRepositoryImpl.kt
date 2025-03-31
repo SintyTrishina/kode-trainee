@@ -6,7 +6,6 @@ import com.example.kode_trainee.feature_heroList.data.dto.retrofit.SearchRequest
 import com.example.kode_trainee.feature_heroList.domain.api.HeroRepository
 import com.example.kode_trainee.feature_heroList.domain.models.Hero
 import com.example.kode_trainee.utils.Resource
-
 class HeroRepositoryImpl(
     private val networkClient: NetworkClient
 ) : HeroRepository {
@@ -23,10 +22,22 @@ class HeroRepositoryImpl(
                         ?.mapNotNull { it.toDomainOrNull() }
                         ?: emptyList()
 
-                    if (heroes.isEmpty()) {
-                        Resource.Error("Nothing found")
-                    } else {
+                    allHeroesCache = heroes
+
+                    if (term.isEmpty()) {
+                        // Если запрос без фильтра - возвращаем всех героев
                         Resource.Success(heroes)
+                    } else {
+                        // Фильтруем по publisher
+                        val filtered = heroes.filter {
+                            it.biography.publisher.contains(term, ignoreCase = true)
+                        }
+
+                        if (filtered.isEmpty()) {
+                            Resource.Error("Nothing found")
+                        } else {
+                            Resource.Success(filtered)
+                        }
                     }
                 }
                 else -> Resource.Error("Server error", emptyList())
@@ -35,18 +46,5 @@ class HeroRepositoryImpl(
             Resource.Error(e.message ?: "Unknown error", emptyList())
         }
     }
-
-    override fun filterHeroesByPublisher(publisher: String): Resource<List<Hero>> {
-        val filtered = allHeroesCache.filter {
-            it.biography.publisher.contains(publisher, ignoreCase = true)
-        }
-
-        return if (filtered.isEmpty()) {
-            Resource.Error("Ничего не найдено")
-        } else {
-            Resource.Success(filtered)
-        }
-    }
 }
-
 

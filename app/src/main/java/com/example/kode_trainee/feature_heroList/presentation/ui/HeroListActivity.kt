@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kode_trainee.databinding.ActivityHeroListBinding
 import com.example.kode_trainee.feature_heroList.domain.models.Hero
+import com.example.kode_trainee.feature_heroList.presentation.viewmodel.FavoriteViewModel
 import com.example.kode_trainee.feature_heroList.presentation.viewmodel.HeroListViewModel
 import com.example.kode_trainee.feature_heroList.presentation.viewmodel.State
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -16,6 +17,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class HeroListActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<HeroListViewModel>()
+    private val favoriteViewModel by viewModel<FavoriteViewModel>()
     private lateinit var binding: ActivityHeroListBinding
     private lateinit var adapter: Adapter
 
@@ -69,7 +71,6 @@ class HeroListActivity : AppCompatActivity() {
                 is State.Content -> showContent(state.heroes)
                 is State.Error -> showError(state.errorMessage)
                 is State.Empty -> showEmpty(state.message)
-                else -> {}
             }
         }
 
@@ -101,7 +102,7 @@ class HeroListActivity : AppCompatActivity() {
 
     private fun showError(errorMessage: String) {
         binding.progressBar.visibility = View.GONE
-        binding.placeholderImage.setImageResource(R.drawable.checkbox_on_background)
+        binding.placeholderImage.setImageResource(R.drawable.stat_notify_error)
         binding.placeholderImage.visibility = View.VISIBLE
         binding.placeholderMessage.visibility = View.VISIBLE
         binding.placeholderMessage.text = errorMessage
