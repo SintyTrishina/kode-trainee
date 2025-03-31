@@ -31,10 +31,6 @@ class HeroListViewModel(
         loadPublishers()
     }
 
-    fun onHeroClicked(hero: Hero) {
-        _navigateToHero.postValue(hero)
-    }
-
     fun searchByPublisher(publisher: String) {
         _searchState.postValue(State.Loading)
 

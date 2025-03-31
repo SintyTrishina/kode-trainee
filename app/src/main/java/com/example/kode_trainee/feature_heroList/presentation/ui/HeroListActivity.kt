@@ -1,5 +1,7 @@
 package com.example.kode_trainee.feature_heroList.presentation.ui
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -12,14 +14,17 @@ import com.example.kode_trainee.databinding.ActivityHeroListBinding
 import com.example.kode_trainee.feature_heroList.domain.models.Hero
 import com.example.kode_trainee.feature_heroList.presentation.viewmodel.HeroListViewModel
 import com.example.kode_trainee.feature_heroList.presentation.viewmodel.State
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HeroListActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<HeroListViewModel>()
     private lateinit var binding: ActivityHeroListBinding
+    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var gson: Gson
     private lateinit var adapter: Adapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,16 +36,24 @@ class HeroListActivity : AppCompatActivity() {
             .placeholder(R.drawable.placeholder)
             .centerCrop()
             .into(binding.photoImageView)
+        // Инициализация SharedPreferences и Gson
+        sharedPrefs = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
+        gson = Gson()
 
         setupAdapter()
         setupSpinner()
         setupObservers()
+    }
 
+    private fun getFavorites(): List<Hero> {
+        val json = sharedPrefs.getString("favorites_list", "[]") ?: "[]"
+        val type = object : TypeToken<List<Hero>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
     }
 
     private fun setupAdapter() {
         adapter = Adapter { hero ->
-            viewModel.onHeroClicked(hero)
+            startActivity(HeroDetailsActivity.newIntent(this, hero))
         }
         binding.heroesRecyclerView.adapter = adapter
     }
@@ -49,10 +62,10 @@ class HeroListActivity : AppCompatActivity() {
         viewModel.publishers.observe(this) { publishers ->
             val adapter = ArrayAdapter(
                 this,
-                org.koin.android.R.layout.support_simple_spinner_dropdown_item,
+                android.R.layout.simple_spinner_item,
                 publishers
             ).apply {
-                setDropDownViewResource(org.koin.android.R.layout.support_simple_spinner_dropdown_item)
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
 
             binding.publisherSpinner.adapter = adapter
@@ -68,6 +81,7 @@ class HeroListActivity : AppCompatActivity() {
                         val selectedPublisher = parent?.getItemAtPosition(position).toString()
                         if (selectedPublisher.isNotEmpty()) {
                             viewModel.searchByPublisher(selectedPublisher)
+                            binding.heroesRecyclerView.smoothScrollToPosition(0)
                         }
                     }
 
@@ -80,7 +94,16 @@ class HeroListActivity : AppCompatActivity() {
         viewModel.searchState.observe(this) { state ->
             when (state) {
                 is State.Loading -> showLoading()
-                is State.Content -> showContent(state.heroes)
+                is State.Content -> {
+                    val favorites = getFavorites()
+                    val sortedHeroes = state.heroes.sortedByDescending { hero ->
+                        favorites.any { it.id == hero.id }
+                    }.map { hero ->
+                        hero.copy(isFavorite = favorites.any { it.id == hero.id })
+                    }
+                    showContent(sortedHeroes)
+                }
+
                 is State.Error -> showError(state.errorMessage)
                 is State.Empty -> showEmpty(state.message)
             }
@@ -90,12 +113,20 @@ class HeroListActivity : AppCompatActivity() {
             message?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
         }
 
-        viewModel.navigateToHero.observe(this) { hero ->
+
+        viewModel.toastState.observe(this)
+        { message ->
+            message?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
+        }
+
+        viewModel.navigateToHero.observe(this)
+        { hero ->
             startActivity(
                 HeroDetailsActivity.newIntent(this, hero)
             )
         }
     }
+
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE

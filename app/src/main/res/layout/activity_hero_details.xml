@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -8,76 +8,83 @@
     android:background="#120A69DB"
     tools:context=".feature_heroList.presentation.ui.HeroDetailsActivity">
 
-    <ImageView
-        android:id="@+id/back"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center"
-        android:layout_marginStart="@dimen/pad16"
-        android:layout_marginTop="@dimen/pad16"
-        android:src="@drawable/light_mode"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/heroImage"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="54dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/placeholder"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/pad16"
+            android:layout_marginTop="@dimen/pad16"
+            android:src="@drawable/light_mode"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/heroName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/pad16"
-        android:layout_marginTop="@dimen/pad16"
-        android:ellipsize="end"
-        android:maxWidth="350dp"
-        android:maxLines="1"
-        android:textSize="24sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/heroImage"
-        tools:text="djdjdjdjddddddddddddddddjjdjd" />
+        <ImageView
+            android:id="@+id/heroImage"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="54dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/realName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/pad16"
-        android:textColor="?android:attr/textColorSecondary"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/heroName"
-        tools:text="djdjdjdjdjjdjd" />
+        <TextView
+            android:id="@+id/heroName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pad16"
+            android:layout_marginTop="@dimen/pad16"
+            android:ellipsize="end"
+            android:maxWidth="350dp"
+            android:maxLines="1"
+            android:textSize="24sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/heroImage"
+            tools:text="djdjdjdjddddddddddddddddjjdjd" />
+
+        <TextView
+            android:id="@+id/realName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pad16"
+            android:textColor="?android:attr/textColorSecondary"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/heroName"
+            tools:text="djdjdjdjdjjdjd" />
 
 
-    <TextView
-        android:id="@+id/placeOfBirth"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/pad16"
-        android:layout_marginTop="@dimen/pad24"
-        android:layout_weight="1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/realName"
-        tools:text="Место рождения" />
+        <TextView
+            android:id="@+id/placeOfBirth"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pad16"
+            android:layout_marginTop="@dimen/pad24"
+            android:layout_weight="1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/realName"
+            tools:text="Место рождения" />
 
-    <ImageButton
-        android:id="@+id/buttonLike"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="@dimen/pad16"
-        android:layout_marginBottom="@dimen/pad16"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:backgroundTint="#00FFFFFF"
-        android:src="@drawable/ic_star_outline"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        <ImageButton
+            android:id="@+id/buttonLike"
+            android:layout_width="@dimen/pad24"
+            android:layout_height="@dimen/pad24"
+            android:layout_marginEnd="@dimen/pad16"
+            android:layout_marginTop="@dimen/pad16"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:backgroundTint="#00FFFFFF"
+            android:src="@drawable/ic_star_outline"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</ScrollView>

@@ -29,7 +29,7 @@ class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     fun bind(item: Hero) {
-        aliasView.text = item.biography.aliases?.joinToString(",")
+        aliasView.text = item.name
         realNameView.text = item.biography.fullName
         publisher.text = item.biography.publisher
 
