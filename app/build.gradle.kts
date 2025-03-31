@@ -1,11 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-parcelize")
 }
 
 android {
     namespace = "com.example.kode_trainee"
-    compileSdk = 34
+    compileSdk = 35
+
+    viewBinding {
+        enable = true
+    }
 
     defaultConfig {
         applicationId = "com.example.kode_trainee"
@@ -45,4 +50,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.koin.android)
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
+
 }
